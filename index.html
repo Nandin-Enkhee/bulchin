@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Адууны бүртгэл</title>
+  <meta name="theme-color" content="#1a1e33" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: 'Inter', sans-serif;
+      background-color: #1a1e33;
+      color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: #252a41;
+      max-width: 500px;
+      width: 100%;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+    }
+    h2 {
+      text-align: center;
+      color: #f1f1f1;
+      margin-bottom: 10px;
+    }
+    .description {
+      text-align: center;
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    label {
+      margin-top: 14px;
+      display: block;
+      font-weight: 600;
+      color: #ddd;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 4px;
+      background: #1f2336;
+      color: #f1f1f1;
+      font-size: 15px;
+    }
+    input:focus, select:focus {
+      outline: 2px solid #5c6bc0;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      background: #5c6bc0;
+      color: white;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #3f51b5;
+    }
+    .delete-btn {
+      background: transparent;
+      border: 1px solid #ff6b6b;
+      color: #ff6b6b;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: #ff6b6b;
+      color: #fff;
+    }
+    .delete-all-btn {
+      background: #ff4d4d;
+      color: white;
+    }
+    .delete-all-btn:hover {
+      background: #d63031;
+    }
+    .nav-button {
+      background: #333;
+      color: #ccc;
+    }
+    .nav-button:hover {
+      background: #444;
+    }
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .total-section {
+      text-align: right;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #2f354a;
+      padding: 10px;
+      text-align: center;
+      color: #eee;
+    }
+    thead {
+      background: #5c6bc0;
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background: #2c3046;
+    }
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .hidden {
+      display: none;
+    }
+    @media(max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="loginPage">
+    <h2>Нэвтрэх</h2>
+    <p class="description">Энэхүү бүртгэлийн системийг зөвхөн<br><strong>"Эмээл Эрдэнэ Трейд"</strong> ашиглана.</p>
+    <input type="password" id="passcode" maxlength="4" placeholder="****" autofocus />
+    <button onclick="login()">Нэвтрэх</button>
+    <p class="error-msg" id="loginError"></p>
+  </div>
+
+  <div class="container hidden" id="homePage">
+    <h2>Адууны дайвар бүртгэл</h2>
+    <button onclick="showPage('externalPage')">Булчин болон хүзүү</button>
+    <button onclick="showPage('viewPage')">Өмнөх бүртгэл харах</button>
+    <button onclick="logout()" class="delete-all-btn">Гарах</button>
+  </div>
+
+  <div class="container hidden" id="externalPage">
+    <h2>Булчин болон хүзүү бүртгэл</h2>
+    <label>Огноо</label>
+    <input type="date" id="recordDate" />
+    <label>Булчингийн жин (кг)</label>
+    <input type="number" id="muscleWeight" placeholder="Жин оруулна уу" />
+    <label>Булчингийн ханш (₮/кг)</label>
+    <input type="number" id="muscleRate" placeholder="Ханш оруулна уу" />
+    <label>Хүзүүний жин (кг)</label>
+    <input type="number" id="tendonWeight" placeholder="Жин оруулна уу" />
+    <label>Хүзүүний ханш (₮/кг)</label>
+    <input type="number" id="tendonRate" placeholder="Ханш оруулна уу" />
+    <button onclick="calculatePrices()">Бодох</button>
+    <button onclick="saveAll()">Хадгалах</button>
+    <button class="nav-button" onclick="showPage('homePage')">Буцах</button>
+    <p class="error-msg" id="externalError"></p>
+    <div class="total-section" id="priceResults"></div>
+  </div>
+
+  <div class="container hidden" id="viewPage">
+    <h2>Өмнөх бүртгэлүүд</h2>
+    <div class="filter-section">
+      <select id="filterType" onchange="renderRecords()">
+        <option value="all">Бүгд</option>
+        <option value="Булчин">Булчин</option>
+        <option value="Хүзүү">Хүзүү</option>
+      </select>
+      <input type="date" id="filterDate" onchange="renderRecords()" />
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Төрөл</th>
+          <th>Огноо</th>
+          <th>Жин</th>
+          <th>Ханш</th>
+          <th>Үнэ</th>
+          <th>Устгах</th>
+        </tr>
+      </thead>
+      <tbody id="recordsTableBody"></tbody>
+    </table>
+    <div class="total-section" id="totalSum">Нийт үнэ: 0 ₮</div>
+    <button class="delete-all-btn" onclick="deleteAllRecords()">Бүгдийг устгах</button>
+    <button class="nav-button" onclick="showPage('homePage')">Буцах</button>
+  </div>
+
+  <script>
+    const CORRECT_CODE = "1234";
+
+    function login() {
+      const code = document.getElementById("passcode").value.trim();
+      if (code === CORRECT_CODE) {
+        showPage('homePage');
+        document.getElementById("passcode").value = "";
+        document.getElementById("loginError").textContent = "";
+      } else {
+        document.getElementById("loginError").textContent = "Нууц үг буруу байна!";
+      }
+    }
+
+    function showPage(id) {
+      ['loginPage','homePage','externalPage','viewPage'].forEach(p=>{
+        document.getElementById(p).classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+      if (id === 'viewPage') renderRecords();
+    }
+
+    function logout() {
+      showPage('loginPage');
+    }
+
+    function calculatePrices() {
+      const mw = parseFloat(document.getElementById("muscleWeight").value) || 0;
+      const mr = parseFloat(document.getElementById("muscleRate").value) || 0;
+      const tw = parseFloat(document.getElementById("tendonWeight").value) || 0;
+      const tr = parseFloat(document.getElementById("tendonRate").value) || 0;
+      const error = document.getElementById("externalError");
+      const result = document.getElementById("priceResults");
+      error.textContent = "";
+      result.textContent = "";
+
+      if (mw === 0 && tw === 0) {
+        error.textContent = "Хамгийн багадаа нэг мэдээлэл бөглөнө үү.";
+        return;
+      }
+
+      const mPrice = mw * mr;
+      const tPrice = tw * tr;
+      result.textContent = `Булчин: ${mPrice.toLocaleString()} ₮, Хүзүү: ${tPrice.toLocaleString()} ₮, Нийт: ${(mPrice + tPrice).toLocaleString()} ₮`;
+    }
+
+    function saveAll() {
+      const date = document.getElementById("recordDate").value;
+      const mw = parseFloat(document.getElementById("muscleWeight").value);
+      const mr = parseFloat(document.getElementById("muscleRate").value);
+      const tw = parseFloat(document.getElementById("tendonWeight").value);
+      const tr = parseFloat(document.getElementById("tendonRate").value);
+      const error = document.getElementById("externalError");
+      error.textContent = "";
+
+      if (!date) {
+        error.textContent = "Огноо оруулна уу.";
+        return;
+      }
+
+      if ((isNaN(mw) || isNaN(mr)) && (isNaN(tw) || isNaN(tr))) {
+        error.textContent = "Хамгийн багадаа нэг мэдээлэл бөглөнө үү.";
+        return;
+      }
+
+      // LocalStorage дээр хадгалах хэвээр
+      let records = JSON.parse(localStorage.getItem("records") || "[]");
+      if (!isNaN(mw) && !isNaN(mr)) {
+        records.push({ type: "Булчин", date: date, weight: mw, rate: mr, price: mw * mr });
+      }
+      if (!isNaN(tw) && !isNaN(tr)) {
+        records.push({ type: "Хүзүү", date: date, weight: tw, rate: tr, price: tw * tr });
+      }
+      localStorage.setItem("records", JSON.stringify(records));
+
+      // Google Sheets рүү илгээх мэдээллийн массив үүсгэх
+      const entries = [];
+      if (!isNaN(mw) && !isNaN(mr)) {
+        entries.push({ type: "Булчин", date: date, weight: mw, rate: mr, price: mw * mr });
+      }
+      if (!isNaN(tw) && !isNaN(tr)) {
+        entries.push({ type: "Хүзүү", date: date, weight: tw, rate: tr, price: tw * tr });
+      }
+
+      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxdmhBgQtrV20HciaRrNxMhxxfgE8BWf28GHQoBUwN3HNu8cW9-2P1Q780CcszOizT0RA/exec";
+
+      Promise.all(entries.map(entry =>
+        fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(entry)
+        }).then(res => res.json())
+      ))
+      .then(results => {
+        if (results.every(r => r.result === "success")) {
+          alert("Амжилттай хадгаллаа! (localStorage & Google Sheets)");
+          showPage('homePage');
+        } else {
+          alert("Google Sheets рүү хадгалах үед алдаа гарлаа!");
+          console.error(results);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Холболтын алдаа гарлаа!");
+      });
+    }
+
+    function renderRecords() {
+      const body = document.getElementById("recordsTableBody");
+      const type = document.getElementById("filterType").value;
+      const date = document.getElementById("filterDate").value;
+      let records = JSON.parse(localStorage.getItem("records") || "[]");
+      let filtered = records.filter(r =>
+        (type === 'all' || r.type === type) &&
+        (!date || r.date === date)
+      );
+      if (filtered.length === 0) {
+        body.innerHTML = `<tr><td colspan="6">Бүртгэл алга</td></tr>`;
+        document.getElementById("totalSum").textContent = "Нийт үнэ: 0 ₮";
+        return;
+      }
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      body.innerHTML = filtered.map((r, i) => {
+        return `<tr>
+          <td>${r.type}</td>
+          <td>${r.date}</td>
+          <td>${r.weight} кг</td>
+          <td>${r.rate.toLocaleString()} ₮/кг</td>
+          <td>${r.price.toLocaleString()} ₮</td>
+          <td><button class="delete-btn" onclick="deleteRecord(${i})">Устгах</button></td>
+        </tr>`;
+      }).join('');
+      const total = filtered.reduce((s, r) => s + r.price, 0);
+      document.getElementById("totalSum").textContent = `Нийт үнэ: ${total.toLocaleString()} ₮`;
+    }
+
+    function deleteRecord(idx) {
+      let records = JSON.parse(localStorage.getItem("records") || "[]");
+      records.splice(idx, 1);
+      localStorage.setItem("records", JSON.stringify(records));
+      renderRecords();
+    }
+
+    function deleteAllRecords() {
+      if (confirm("Бүх бүртгэлийг устгах уу?")) {
+        localStorage.removeItem("records");
+        renderRecords();
+      }
+    }
+
+    showPage('loginPage');
+  </script>
+</body>
+</html>
